@@ -38,7 +38,7 @@ const Footer: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-12 pt-24 border-t border-white/10 mt-12">
+      <div className="flex justify-between pt-24 border-t border-white/10 mt-12">
         <div className="flex flex-col gap-6">
           <span className="text-xs font-bold tracking-widest text-white/40 uppercase">ADDRESS</span>
           <p className="text-sm text-white/70 max-w-[200px]">
