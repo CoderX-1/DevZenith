@@ -32,7 +32,7 @@ const MetricCounter: React.FC<{ value: string; label: string }> = ({ value, labe
 
   return (
     <div className="flex flex-col">
-      <span ref={numberRef} className="text-4xl md:text-6xl font-black mb-2">0</span>
+      <span ref={numberRef} className="text-4xl font-black mb-2">0</span>
       <span className="text-[10px] md:text-xs font-bold tracking-widest text-white/40 uppercase">
         {label}
       </span>
@@ -54,7 +54,7 @@ const WhatWeDo: React.FC = () => {
             Our approach combines deep technical SEO knowledge with high-end creative execution. We don't just build websites; we build scalable performance systems that outpace the market.
           </p>
           
-          <div className="flex gap-12 border-t border-white/10 pt-12">
+          <div className="flex flex-col md:flex-row gap-12 border-t border-white/10 pt-12">
             {METRICS.map((metric, idx) => (
               <MetricCounter key={idx} value={metric.value} label={metric.label} />
             ))}
