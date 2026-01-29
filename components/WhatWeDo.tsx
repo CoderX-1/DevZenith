@@ -1,3 +1,4 @@
+
 import React, { useLayoutEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { METRICS } from '../constants';
@@ -15,10 +16,10 @@ const MetricCounter: React.FC<{ value: string; label: string }> = ({ value, labe
       gsap.to(obj, {
         count: numericPart,
         duration: 3,
-        ease: 'power3.out',
+        ease: 'expo.out',
         scrollTrigger: {
           trigger: numberRef.current,
-          start: 'top 90%',
+          start: 'top 95%',
         },
         onUpdate: () => {
           if (numberRef.current) {
@@ -31,9 +32,9 @@ const MetricCounter: React.FC<{ value: string; label: string }> = ({ value, labe
   }, [value]);
 
   return (
-    <div className="flex flex-col">
-      <span ref={numberRef} className="text-4xl font-black mb-2">0</span>
-      <span className="text-[10px] md:text-xs font-bold tracking-widest text-white/40 uppercase">
+    <div className="flex flex-col border-t border-white/10 pt-8">
+      <span ref={numberRef} className="text-5xl md:text-8xl font-black mb-4">0</span>
+      <span className="text-[10px] md:text-sm font-bold tracking-[0.5em] text-white/40 uppercase">
         {label}
       </span>
     </div>
@@ -41,20 +42,46 @@ const MetricCounter: React.FC<{ value: string; label: string }> = ({ value, labe
 };
 
 const WhatWeDo: React.FC = () => {
+  const textRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.from(textRef.current?.querySelectorAll('.reveal span'), {
+        y: '100%',
+        duration: 1.5,
+        stagger: 0.1,
+        ease: 'expo.out',
+        scrollTrigger: {
+          trigger: textRef.current,
+          start: 'top 85%',
+        }
+      });
+    }, textRef);
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section id="agency" className="reveal-section py-32 px-6 md:px-12 border-t border-white/10 mt-32">
-      <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-20">
+    <section id="agency" ref={textRef} className="reveal-section py-32 md:py-64 px-6 md:px-12 bg-transparent">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-24">
         <div>
-          <h2 className="text-[12vw] md:text-[8vw] font-black uppercase tracking-tighter leading-none mb-12">
-            WE BUILD<br />REVENUE ENGINES
-          </h2>
+           <div className="overflow-hidden reveal mb-8">
+              <span className="text-xs font-bold tracking-[0.5em] text-white/30 uppercase block">CORE PHILOSOPHY</span>
+           </div>
+           <div className="overflow-hidden reveal">
+              <h2 className="text-6xl md:text-[8vw] font-black uppercase tracking-tighter leading-[0.85] mb-12">
+                <span>WE BUILD</span><br />
+                <span className="text-white/10 italic">REVENUE ENGINES</span>
+              </h2>
+           </div>
         </div>
         <div className="flex flex-col justify-center">
-          <p className="text-sm md:text-lg text-white/60 leading-relaxed mb-16 max-w-xl">
-            Our approach combines deep technical SEO knowledge with high-end creative execution. We don't just build websites; we build scalable performance systems that outpace the market.
-          </p>
+          <div className="overflow-hidden reveal">
+            <p className="text-2xl md:text-4xl text-white/70 leading-tight mb-20 max-w-2xl font-black uppercase tracking-tighter">
+              <span>OUR APPROACH COMBINES DEEP TECHNICAL SEO KNOWLEDGE WITH HIGH-END CREATIVE EXECUTION. WE DON'T JUST BUILD WEBSITES; WE BUILD SCALABLE PERFORMANCE SYSTEMS.</span>
+            </p>
+          </div>
           
-          <div className="flex flex-col md:flex-row gap-12 border-t border-white/10 pt-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {METRICS.map((metric, idx) => (
               <MetricCounter key={idx} value={metric.value} label={metric.label} />
             ))}

@@ -1,13 +1,24 @@
 
 import React, { useLayoutEffect, useRef } from 'react';
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Hero from '../components/Hero';
+import Services from '../components/Services';
+import ROIRoadmap from '../components/ROIRoadmap';
+import LeadMagnet from '../components/LeadMagnet';
 import WhatWeDo from '../components/WhatWeDo';
 import SelectedWork from '../components/SelectedWork';
 import Testimonials from '../components/Testimonials';
+import PartnerClub from '../components/PartnerClub';
 import Footer from '../components/Footer';
 
-const Home: React.FC = () => {
+gsap.registerPlugin(ScrollTrigger);
+
+interface HomeProps {
+  onNavigate: (path: string) => void;
+}
+
+const Home: React.FC<HomeProps> = ({ onNavigate }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
@@ -19,11 +30,11 @@ const Home: React.FC = () => {
           { 
             opacity: 1, 
             y: 0, 
-            duration: 1, 
-            ease: 'power3.out',
+            duration: 1.5, 
+            ease: 'expo.out',
             scrollTrigger: {
               trigger: section,
-              start: 'top 80%',
+              start: 'top 85%',
             }
           }
         );
@@ -35,9 +46,13 @@ const Home: React.FC = () => {
   return (
     <div ref={containerRef}>
       <Hero />
+      <Services />
+      <ROIRoadmap />
       <WhatWeDo />
+      <LeadMagnet />
       <SelectedWork />
       <Testimonials />
+      <PartnerClub />
       <Footer />
     </div>
   );

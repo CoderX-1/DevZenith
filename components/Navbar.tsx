@@ -1,7 +1,10 @@
 
-import React, { useState, useRef, useLayoutEffect } from 'react';
+import React, { useState, useRef, useLayoutEffect, useEffect } from 'react';
 import { X, Menu as MenuIcon } from 'lucide-react';
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface NavLinkProps {
   label: string;
@@ -36,49 +39,131 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPath }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
+  const navRef = useRef<HTMLElement>(null);
+  const isAnimating = useRef(false);
+
+  // We use a persistent context to avoid 'pop' on state changes
+  const contextRef = useRef<gsap.Context | null>(null);
+
+  useEffect(() => {
+    contextRef.current = gsap.context(() => {
+      ScrollTrigger.create({
+        start: 'top -50',
+        onUpdate: (self) => {
+          setIsScrolled(self.scroll() > 50);
+        }
+      });
+    });
+    return () => contextRef.current?.revert();
+  }, []);
 
   useLayoutEffect(() => {
-    const ctx = gsap.context(() => {
+    if (!contextRef.current) return;
+
+    contextRef.current.add(() => {
       if (isOpen) {
+        // OPENING ANIMATION
+        isAnimating.current = true;
         gsap.set(menuRef.current, { display: 'flex' });
-        gsap.fromTo(bgRef.current, 
-          { y: '-100%' }, 
-          { y: '0%', duration: 1, ease: 'power4.inOut' }
-        );
-        gsap.fromTo('.mobile-link-container', 
-          { y: 150, opacity: 0 }, 
-          { y: 0, opacity: 1, duration: 1, stagger: 0.1, ease: 'power4.out', delay: 0.4 }
-        );
-      } else {
+        
         const tl = gsap.timeline({
           onComplete: () => {
-            if (!isOpen) gsap.set(menuRef.current, { display: 'none' });
+            isAnimating.current = false;
           }
         });
-        tl.to('.mobile-link-container', { y: -50, opacity: 0, duration: 0.5, stagger: 0.05, ease: 'power2.in' })
-          .to(bgRef.current, { y: '-100%', duration: 0.8, ease: 'power4.inOut' }, "-=0.2");
+
+        tl.set(bgRef.current, { y: '-100%' });
+        tl.set('.mobile-link-container', { y: 100, opacity: 0 });
+        tl.set('.mobile-extra-item', { y: 40, opacity: 0 });
+
+        tl.to(bgRef.current, { 
+          y: '0%', 
+          duration: 1.2, 
+          ease: 'expo.inOut' 
+        });
+
+        tl.to('.mobile-link-container', { 
+          y: 0, 
+          opacity: 1, 
+          duration: 1.2, 
+          stagger: 0.1, 
+          ease: 'expo.out' 
+        }, "-=0.6");
+
+        tl.to('.mobile-extra-item', { 
+          y: 0, 
+          opacity: 1, 
+          duration: 1, 
+          stagger: 0.1, 
+          ease: 'expo.out' 
+        }, "-=0.8");
+
+      } else {
+        // CLOSING ANIMATION
+        isAnimating.current = true;
+        const tl = gsap.timeline({
+          onComplete: () => {
+            gsap.set(menuRef.current, { display: 'none' });
+            isAnimating.current = false;
+          }
+        });
+
+        tl.to('.mobile-extra-item', { 
+          y: -20, 
+          opacity: 0, 
+          duration: 0.6, 
+          stagger: 0.05, 
+          ease: 'power3.in' 
+        });
+
+        tl.to('.mobile-link-container', { 
+          y: -40, 
+          opacity: 0, 
+          duration: 0.6, 
+          stagger: 0.05, 
+          ease: 'power3.in' 
+        }, "-=0.4");
+
+        tl.to(bgRef.current, { 
+          y: '-100%', 
+          duration: 1, 
+          ease: 'expo.inOut' 
+        }, "-=0.4");
       }
     });
-    return () => ctx.revert();
   }, [isOpen]);
 
-  const toggleMenu = () => setIsOpen(!isOpen);
+  const toggleMenu = () => {
+    if (isAnimating.current) return;
+    setIsOpen(!isOpen);
+  };
 
   const handleNav = (path: string) => {
+    if (isAnimating.current) return;
     setIsOpen(false);
     onNavigate(path);
   };
 
   return (
     <>
-      <nav className="fixed top-0 left-0 w-full z-[70] flex justify-between items-center px-6 py-8 md:px-12 mix-blend-difference pointer-events-none">
-        <div className="flex items-center pointer-events-auto">
+      <nav 
+        ref={navRef}
+        className={`fixed top-0 left-0 w-full z-[70] flex justify-between items-center transition-all duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] px-6 md:px-12 pointer-events-none 
+          ${isScrolled 
+            ? 'py-4 bg-[#050505]/80 backdrop-blur-xl border-b border-white/5 shadow-2xl' 
+            : 'py-8 bg-transparent'}`}
+      >
+        {/* Subtle overlay to ensure mix-blend-difference doesn't make text unreadable against the glass background */}
+        <div className={`absolute inset-0 transition-opacity duration-700 pointer-events-none ${isScrolled ? 'opacity-100' : 'opacity-0'}`} />
+
+        <div className="flex items-center pointer-events-auto mix-blend-difference">
           <button onClick={() => handleNav('home')} className="text-xl font-black tracking-tighter text-white uppercase">DEVZENITH.</button>
         </div>
         
-        <div className="flex items-center gap-8 md:gap-12 pointer-events-auto">
+        <div className="flex items-center gap-8 md:gap-12 pointer-events-auto mix-blend-difference">
           <div className="hidden md:flex gap-10 text-[10px] font-bold tracking-[0.4em] text-white">
             <NavLink onClick={() => handleNav('work')} label="WORK" isActive={currentPath === 'work'} />
             <NavLink onClick={() => handleNav('agency')} label="AGENCY" isActive={currentPath === 'agency'} />
@@ -87,7 +172,10 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPath }) => {
 
           <button 
             onClick={toggleMenu}
-            className="md:hidden px-5 py-2 border border-white rounded-full text-[10px] font-bold tracking-widest text-white hover:bg-white hover:text-black transition-all flex items-center gap-2"
+            className={`md:hidden px-5 py-2 border rounded-full text-[10px] font-bold tracking-widest transition-all flex items-center gap-2 
+              ${isScrolled 
+                ? 'border-white/20 text-white hover:bg-white hover:text-black' 
+                : 'border-white text-white hover:bg-white hover:text-black'}`}
           >
             {isOpen ? <X size={14} /> : <MenuIcon size={14} />}
             {isOpen ? 'CLOSE' : 'MENU'}
@@ -97,7 +185,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPath }) => {
 
       <div 
         ref={menuRef} 
-        className="fixed inset-0 z-[65] hidden flex-col justify-center px-6 sm:px-12 pointer-events-auto md:hidden"
+        className="fixed inset-0 z-[65] hidden flex-col justify-center px-6 sm:px-12 pointer-events-auto md:hidden overflow-hidden"
       >
         <div ref={bgRef} className="absolute inset-0 bg-[#050505] border-b border-white/10" />
         
@@ -114,16 +202,16 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPath }) => {
           ))}
         </div>
 
-        <div className="relative z-10 mt-16 pt-8 border-t border-white/10 flex flex-col gap-6">
-          <div className="flex flex-col gap-1">
+        <div className="relative z-10 mt-16 pt-8 border-t border-white/10 flex flex-col gap-8">
+          <div className="flex flex-col gap-2 mobile-extra-item">
             <span className="text-[10px] font-bold text-white/30 tracking-[0.3em] uppercase">OFFICE</span>
-            <span className="text-sm font-medium text-white/70">DUBAI / KARACHI</span>
+            <span className="text-sm font-bold text-white/80 tracking-tight uppercase">DUBAI / RIYADH / KARACHI</span>
           </div>
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-2 mobile-extra-item">
             <span className="text-[10px] font-bold text-white/30 tracking-[0.3em] uppercase">CONNECT</span>
-            <div className="flex gap-6">
-              {['IG', 'LI', 'BE'].map(s => (
-                <a key={s} href="#" className="text-sm font-bold text-white/70 hover:text-white transition-colors">{s}</a>
+            <div className="flex gap-8">
+              {['INSTAGRAM', 'LINKEDIN', 'BEHANCE'].map(s => (
+                <a key={s} href="#" className="text-xs font-bold text-white/60 hover:text-white transition-colors tracking-widest uppercase">{s}</a>
               ))}
             </div>
           </div>

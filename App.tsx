@@ -1,9 +1,10 @@
 
-import React, { useState, useLayoutEffect, useRef, useEffect } from 'react';
+import React, { useState, useLayoutEffect, useRef, useEffect, useCallback } from 'react';
 import { ReactLenis } from '@studio-freight/react-lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Navbar from './components/Navbar';
+import Loader from './components/Loader';
 import Home from './pages/Home';
 import Work from './pages/Work';
 import Agency from './pages/Agency';
@@ -13,9 +14,39 @@ import ScrollToTop from './components/ScrollToTop';
 gsap.registerPlugin(ScrollTrigger);
 
 const App: React.FC = () => {
+  const [isLoading, setIsLoading] = useState(true);
   const [currentPath, setCurrentPath] = useState('home');
   const [isTransitioning, setIsTransitioning] = useState(false);
   const transitionRef = useRef<HTMLDivElement>(null);
+  const watermarkRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.to(watermarkRef.current, {
+        yPercent: -15,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: 'body',
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 1
+        }
+      });
+    });
+    return () => ctx.revert();
+  }, []);
+
+  useEffect(() => {
+    if (isLoading) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+  }, [isLoading]);
+
+  const handleLoaderComplete = useCallback(() => {
+    setIsLoading(false);
+  }, []);
 
   const navigate = (path: string) => {
     if (path === currentPath || isTransitioning) return;
@@ -25,25 +56,27 @@ const App: React.FC = () => {
       onComplete: () => {
         setCurrentPath(path);
         window.scrollTo(0, 0);
-        // Fade out transition curtain
+        
+        // Curtain Open Animation
         gsap.to(transitionRef.current, {
-          y: '-100%',
-          duration: 0.8,
-          ease: 'power4.inOut',
+          scaleY: 0,
+          transformOrigin: 'top center',
+          duration: 1.2,
+          ease: 'expo.inOut',
           onComplete: () => {
             setIsTransitioning(false);
-            gsap.set(transitionRef.current, { y: '100%' });
+            gsap.set(transitionRef.current, { display: 'none' });
           }
         });
       }
     });
 
-    // Fade in transition curtain
-    tl.set(transitionRef.current, { y: '100%', display: 'block' })
+    // Curtain Close Animation
+    tl.set(transitionRef.current, { display: 'block', scaleY: 0, transformOrigin: 'bottom center' })
       .to(transitionRef.current, {
-        y: '0%',
-        duration: 0.8,
-        ease: 'power4.inOut'
+        scaleY: 1,
+        duration: 1.2,
+        ease: 'expo.inOut'
       });
   };
 
@@ -52,26 +85,33 @@ const App: React.FC = () => {
       case 'work': return <Work />;
       case 'agency': return <Agency />;
       case 'contact': return <Contact />;
-      default: return <Home />;
+      default: return <Home onNavigate={navigate} />;
     }
   };
 
   return (
-    <ReactLenis root options={{ lerp: 0.1, duration: 1.5 }}>
-      <div className="bg-[#050505] text-white selection:bg-white selection:text-black min-h-screen">
+    <ReactLenis root options={{ lerp: 0.08, duration: 1.2 }}>
+      <div className="bg-[#050505] text-white selection:bg-[#FFD700] selection:text-black min-h-screen relative">
+        <Loader onComplete={handleLoaderComplete} />
+
+        {/* Background Watermark */}
+        <div ref={watermarkRef} className="fixed inset-0 pointer-events-none flex items-center justify-center opacity-[0.02] z-0 overflow-hidden select-none">
+          <span className="text-[35vw] font-black uppercase tracking-tighter leading-none whitespace-nowrap italic">ZENITH</span>
+        </div>
+
         <Navbar onNavigate={navigate} currentPath={currentPath} />
         
-        {/* Page Transition Curtain */}
+        {/* The Curtain Transition Overlay */}
         <div 
           ref={transitionRef} 
-          className="fixed inset-0 bg-white z-[100] hidden translate-y-full"
+          className="fixed inset-0 bg-[#FFD700] z-[100] hidden shadow-[0_0_100px_rgba(255,215,0,0.2)]"
         />
 
-        <main>
+        <main className={`relative z-10 transition-opacity duration-700 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
           {renderPage()}
         </main>
         
-        <ScrollToTop />
+        {!isLoading && <ScrollToTop />}
       </div>
     </ReactLenis>
   );

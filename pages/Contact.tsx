@@ -1,35 +1,38 @@
 
-import React, { useLayoutEffect, useRef } from 'react';
+import React, { useLayoutEffect, useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, CheckCircle2 } from 'lucide-react';
 import Footer from '../components/Footer';
 
-interface ContactLinkProps {
-  href: string;
-  label: string;
-  className?: string;
-}
+const GlobalClock: React.FC<{ city: string; offset: number }> = ({ city, offset }) => {
+  const [time, setTime] = useState("");
 
-const ContactLink: React.FC<ContactLinkProps> = ({ href, label, className }) => {
+  useEffect(() => {
+    const update = () => {
+      const d = new Date();
+      const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+      const nd = new Date(utc + (3600000 * offset));
+      setTime(nd.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }));
+    };
+    update();
+    const timer = setInterval(update, 60000);
+    return () => clearInterval(timer);
+  }, [offset]);
+
   return (
-    <a 
-      href={href} 
-      className={`group relative overflow-hidden block ${className}`}
-    >
-      <div className="relative flex flex-col transition-transform duration-700 ease-[cubic-bezier(0.76,0,0.24,1)] group-hover:-translate-y-full">
-        {/* Primary State */}
-        <span className="block">{label}</span>
-        {/* Hover State - Slides up from below */}
-        <span className="absolute top-full left-0 block italic text-white/40">
-          {label}
-        </span>
-      </div>
-    </a>
+    <div className="flex flex-col">
+      <span className="text-[9px] font-black tracking-widest text-white/20 uppercase">{city}</span>
+      <span className="text-lg font-black tracking-tighter text-white/60">{time}</span>
+    </div>
   );
 };
 
 const Contact: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const successRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [budget, setBudget] = useState(15000);
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -37,77 +40,149 @@ const Contact: React.FC = () => {
         y: 100,
         opacity: 0,
         duration: 1.5,
-        stagger: 0.2,
-        ease: 'power4.out'
+        stagger: 0.1,
+        ease: 'expo.out'
       });
     }, containerRef);
     return () => ctx.revert();
   }, []);
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const tl = gsap.timeline({
+      onComplete: () => setIsSubmitted(true)
+    });
+
+    tl.to(formRef.current, {
+      opacity: 0,
+      y: -20,
+      duration: 0.5,
+      ease: 'power2.in'
+    })
+    .to('.contact-reveal', {
+      opacity: 0.1,
+      filter: 'blur(10px)',
+      duration: 1
+    }, '-=0.3');
+  };
+
+  useEffect(() => {
+    if (isSubmitted) {
+      gsap.fromTo(successRef.current, 
+        { scale: 0.8, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 1.5, ease: 'expo.out' }
+      );
+    }
+  }, [isSubmitted]);
+
   return (
-    <div ref={containerRef} className="pt-40">
-      <section className="px-6 md:px-12 mb-40">
-        <div className="overflow-hidden">
-          <h1 className="contact-reveal text-[14vw] md:text-[10vw] font-black uppercase tracking-tighter leading-none">
-            READY TO
-          </h1>
-        </div>
-        <div className="overflow-hidden">
-          <h1 className="contact-reveal text-[14vw] md:text-[10vw] font-black uppercase tracking-tighter leading-none text-white/20">
-            DISRUPT?
-          </h1>
+    <div ref={containerRef} className="pt-40 min-h-screen">
+      <section className="px-6 md:px-12 mb-32">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-12">
+          <div>
+            <div className="overflow-hidden">
+              <h1 className="contact-reveal text-[14vw] md:text-[11vw] font-black uppercase tracking-tighter leading-none">
+                INITIATE
+              </h1>
+            </div>
+            <div className="overflow-hidden">
+              <h1 className="contact-reveal text-[14vw] md:text-[11vw] font-black uppercase tracking-tighter leading-none text-white/5 italic">
+                STRATEGY.
+              </h1>
+            </div>
+          </div>
+          
+          <div className="flex gap-12 md:gap-24 contact-reveal">
+             <GlobalClock city="DUBAI" offset={4} />
+             <GlobalClock city="RIYADH" offset={3} />
+             <GlobalClock city="LONDON" offset={0} />
+          </div>
         </div>
       </section>
 
-      <section className="px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-20 mb-40">
-        <div className="contact-reveal">
-          <p className="text-sm md:text-lg text-white/60 leading-relaxed max-w-md">
-            WHETHER YOU'RE A GLOBAL LEADER OR A FAST-GROWING STARTUP, WE'RE READY TO ENGINEER YOUR NEXT SUCCESS STORY.
+      <section className="px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-24 mb-48 items-start">
+        <div className="contact-reveal space-y-16">
+          <p className="text-xl md:text-3xl text-white/60 leading-tight font-bold uppercase tracking-tight max-w-md">
+            WHETHER YOU'RE IN DUBAI, RIYADH, OR LONDON, WE'RE READY TO ENGINEER YOUR NEXT REVENUE STREAK.
           </p>
           
-          <div className="mt-16 flex flex-col gap-10">
-             <div className="flex flex-col gap-3">
-                <span className="text-[10px] font-bold tracking-[0.4em] text-white/30 uppercase">NEW BUSINESS</span>
-                <ContactLink 
-                  href="mailto:hello@devzenith.agency" 
-                  label="hello@devzenith.agency" 
-                  className="text-2xl md:text-4xl font-black uppercase tracking-tighter"
-                />
+          <div className="flex flex-col gap-12">
+             <div className="flex flex-col gap-4">
+                <span className="text-[10px] font-black tracking-[0.5em] text-[#FFD700] uppercase">ENCRYPTED_MAIL</span>
+                <a href="mailto:hello@devzenith.agency" className="text-3xl md:text-5xl font-black uppercase tracking-tighter hover:italic transition-all">hello@devzenith.agency</a>
              </div>
-             <div className="flex flex-col gap-3">
-                <span className="text-[10px] font-bold tracking-[0.4em] text-white/30 uppercase">JOIN THE TEAM</span>
-                <ContactLink 
-                  href="mailto:careers@devzenith.agency" 
-                  label="careers@devzenith.agency" 
-                  className="text-2xl md:text-4xl font-black uppercase tracking-tighter"
-                />
+             <div className="flex flex-col gap-4">
+                <span className="text-[10px] font-black tracking-[0.5em] text-[#FFD700] uppercase">DIRECT_WHATSAPP</span>
+                <a href="#" className="text-3xl md:text-5xl font-black uppercase tracking-tighter hover:italic transition-all">+971 00 000 0000</a>
              </div>
           </div>
         </div>
 
-        <div className="contact-reveal border border-white/10 p-8 md:p-12 bg-white/[0.02]">
-           <h3 className="text-xs font-bold tracking-[0.4em] text-white/30 uppercase mb-12">SEND A BRIEF</h3>
-           <form className="flex flex-col gap-8">
-              <div className="flex flex-col gap-2">
-                 <label className="text-[10px] font-bold text-white/20 uppercase tracking-widest">NAME</label>
-                 <input type="text" className="bg-transparent border-b border-white/10 py-4 focus:border-white outline-none transition-colors text-xl font-bold uppercase tracking-tighter" />
-              </div>
-              <div className="flex flex-col gap-2">
-                 <label className="text-[10px] font-bold text-white/20 uppercase tracking-widest">EMAIL</label>
-                 <input type="email" className="bg-transparent border-b border-white/10 py-4 focus:border-white outline-none transition-colors text-xl font-bold uppercase tracking-tighter" />
-              </div>
-              <div className="flex flex-col gap-2">
-                 <label className="text-[10px] font-bold text-white/20 uppercase tracking-widest">MESSAGE</label>
-                 <textarea rows={4} className="bg-transparent border-b border-white/10 py-4 focus:border-white outline-none transition-colors text-xl font-bold uppercase tracking-tighter resize-none" />
-              </div>
-              <button className="group mt-8 flex items-center gap-4 text-xs font-bold tracking-widest uppercase">
-                 SUBMIT INQUIRY <ArrowUpRight className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-              </button>
-           </form>
+        <div className="relative">
+          {!isSubmitted ? (
+            <form ref={formRef} onSubmit={handleSubmit} className="contact-reveal border border-white/10 p-10 md:p-16 bg-[#0a0a0a] space-y-12">
+               <div className="space-y-4">
+                  <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">IDENTIFICATION</label>
+                  <input required type="text" placeholder="YOUR NAME" className="w-full bg-transparent border-b border-white/10 py-4 text-2xl font-black uppercase tracking-tighter outline-none focus:border-[#FFD700] transition-colors" />
+               </div>
+
+               <div className="space-y-4">
+                  <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">INDUSTRY / SECTOR</label>
+                  <div className="flex flex-wrap gap-4">
+                     {['TECH', 'REAL ESTATE', 'FINANCE', 'E-COMMERCE'].map(cat => (
+                       <label key={cat} className="cursor-pointer group">
+                          <input type="radio" name="industry" className="hidden" />
+                          <span className="px-6 py-2 border border-white/10 text-xs font-black uppercase tracking-widest group-hover:border-[#FFD700] transition-all group-has-[:checked]:bg-[#FFD700] group-has-[:checked]:text-black">{cat}</span>
+                       </label>
+                     ))}
+                  </div>
+               </div>
+
+               <div className="space-y-8">
+                  <div className="flex justify-between items-end">
+                    <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">PROJECT_BUDGET</label>
+                    <span className="text-2xl font-black text-[#FFD700] italic">${budget.toLocaleString()}+</span>
+                  </div>
+                  <input 
+                    type="range" 
+                    min="3000" 
+                    max="50000" 
+                    step="1000" 
+                    value={budget}
+                    onChange={(e) => setBudget(parseInt(e.target.value))}
+                    className="w-full h-1 bg-white/10 appearance-none cursor-pointer accent-[#FFD700]"
+                  />
+               </div>
+
+               <button className="w-full bg-white text-black py-8 text-xl font-black uppercase tracking-widest hover:bg-[#FFD700] transition-colors flex items-center justify-center gap-4 group">
+                  TRANSMIT BRIEF <ArrowUpRight className="group-hover:rotate-45 transition-transform" />
+               </button>
+            </form>
+          ) : (
+            <div ref={successRef} className="border border-[#FFD700]/30 p-16 md:p-24 bg-[#0a0a0a] text-center flex flex-col items-center gap-8 shadow-[0_0_60px_rgba(255,215,0,0.1)]">
+               <CheckCircle2 size={80} className="text-[#FFD700] animate-bounce" />
+               <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter leading-none italic">
+                 BLUEPRINT<br/>PREPARING.
+               </h2>
+               <p className="text-lg font-bold uppercase tracking-widest text-white/40 max-w-xs">
+                 YOUR DATA IS BEING PROCESSED. OUR STRATEGIST WILL RESPOND WITHIN 12 HOURS.
+               </p>
+               <div className="w-48 h-px bg-[#FFD700]/20 relative overflow-hidden">
+                  <div className="absolute top-0 left-0 h-full w-full bg-[#FFD700] animate-[shimmer_2s_infinite]" />
+               </div>
+            </div>
+          )}
         </div>
       </section>
 
       <Footer />
+
+      <style>{`
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+      `}</style>
     </div>
   );
 };
