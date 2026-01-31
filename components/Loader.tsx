@@ -15,7 +15,7 @@ const Loader: React.FC<LoaderProps> = ({ onComplete }) => {
 
   useEffect(() => {
     if (hasInitialized.current) return;
-    hasInitialized.current = true;
+    hasInitialized.current = false;
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({

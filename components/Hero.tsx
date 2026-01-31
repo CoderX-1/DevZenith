@@ -51,12 +51,12 @@ const Hero: React.FC = () => {
       </div>
       
       <div className="mt-12 flex flex-col md:flex-row md:items-end justify-between border-t border-white/10 pt-8 gap-8">
-        <p className="max-w-md text-sm md:text-lg text-white/60 leading-relaxed font-medium">
+        <p className="max-w-md text-sm md:text-base text-white/60 leading-relaxed font-medium">
           WE PARTNER WITH DISRUPTIVE BRANDS TO ENGINEER HIGH-CONVERSION DIGITAL EXPERIENCES THROUGH METICULOUS DESIGN AND TECHNICAL EXCELLENCE.
         </p>
         <div className="flex gap-4">
-          <span className="text-xs font-bold tracking-widest text-white/40 uppercase">DUBAI / KARACHI</span>
-          <span className="text-xs font-bold tracking-widest text-white/40 uppercase">EST. 2026 </span>
+          <span className="text-[12px] md:text-[14px] font-bold tracking-widest text-white/40 uppercase">DUBAI / KARACHI</span>
+          <span className="text-[12px] md:text-[14px] font-bold tracking-widest text-white/40 uppercase">EST. 2026 </span>
         </div>
       </div>
     </section>
