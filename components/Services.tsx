@@ -114,7 +114,7 @@ const Services: React.FC = () => {
         <div className="services-header overflow-hidden">
           <h2 className="text-[13vw] md:text-[8vw] font-black uppercase tracking-tighter leading-none">
             <span className="block">CORE</span>
-            <span className="block text-white/10 italic">SYSTEMS.</span>
+            <span className="block text-white/20 italic">SYSTEMS.</span>
           </h2>
         </div>
       </div>
