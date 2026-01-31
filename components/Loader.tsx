@@ -15,7 +15,7 @@ const Loader: React.FC<LoaderProps> = ({ onComplete }) => {
 
   useEffect(() => {
     if (hasInitialized.current) return;
-    hasInitialized.current = false;
+    hasInitialized.current = true;
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
@@ -110,21 +110,19 @@ const Loader: React.FC<LoaderProps> = ({ onComplete }) => {
     >
       {/* Background Watermark during load */}
       <div className="absolute inset-0 flex items-center justify-center opacity-[0.02] pointer-events-none select-none">
-        <span className="text-[20vw] font-black tracking-tighter">DZ</span>
+        <span className="text-[40vw] font-black tracking-tighter">DZ</span>
       </div>
 
-      <div className="relative flex flex-col items-center gap-4">
-        <div className="overflow-hidden h-12 flex items-center justify-center">
-          <span ref={wordRef} className="text-[5vw] font-black tracking-[0.4em] uppercase text-white/40">
-            DEVZENITH
-          </span>
+      <div className="relative flex flex-col items-end md:gap-4 ">
+        <div className="overflow-hidden h-8 md:h-10 lg:h-14 flex items-center justify-center">
+          <span ref={wordRef} className="text-[8vw] font-black tracking-[0.4em] uppercase text-white/40">DEVZENITH</span>
         </div>
         
         <div className="flex items-baseline">
-          <span className="text-[2rem] font-black tracking-tighter leading-none">
+          <span className="flex items-end text-[4vw] md:text-[2vw] font-black tracking-tighter leading-none">
             LOADING {count.toString().padStart(3, '0')}
           </span>
-          <span className="text-xl md:text-2xl font-black ml-2 text-[#FFD700]">%</span>
+          <span className="text-[4vw] md:text-[2vw] font-black ml-2 text-[#FFD700]">%</span>
         </div>
       </div>
 
@@ -135,7 +133,7 @@ const Loader: React.FC<LoaderProps> = ({ onComplete }) => {
       />
 
       <div className="absolute bottom-12 right-12 flex flex-col gap-2">
-        <span className="text-[10px] font-bold tracking-[0.5em] text-white/20 uppercase">SYSTEM INITIALIZING</span>
+        <span className="text-[8px] md:text-[10px] font-bold tracking-[0.5em] text-white/20 uppercase">SYSTEM INITIALIZING</span>
         <div className="w-32 h-[1px] bg-white/5 relative">
           <div className="absolute top-0 left-0 h-full bg-white/20 transition-all duration-300" style={{ width: `${count}%` }} />
         </div>

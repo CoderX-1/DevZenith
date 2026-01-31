@@ -1,6 +1,7 @@
 
-import React from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
 import { ArrowUpRight } from 'lucide-react';
+import gsap from 'gsap';
 
 interface RollingLinkProps {
   href: string;
@@ -27,8 +28,29 @@ const RollingLink: React.FC<RollingLinkProps> = ({ href, label, className }) => 
 };
 
 const Footer: React.FC = () => {
+  const footerRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.from('.footer-bottom-reveal', {
+        y: 50,
+        opacity: 0,
+        stagger: 0.1,
+        duration: 1,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: '.footer-bottom-reveal',
+          start: 'top 95%',
+        }
+      });
+    }, footerRef);
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <footer id="contact" className="px-6 md:px-12 py-12 md:py-24 border-t border-white/10 overflow-hidden">
+    <footer id="contact" ref={footerRef} className="px-6 md:px-12 py-12 md:py-24 border-t border-white/10 overflow-hidden bg-[#050505]">
+      
+      {/* Centered "Let's Talk" Call to Action */}
       <div className="relative group cursor-pointer py-24 md:py-48 flex items-center justify-center">
         <h2 className="text-[12vw] font-black uppercase tracking-tighter leading-none transition-opacity group-hover:opacity-30 duration-500 text-center">
           LET'S TALK
@@ -38,42 +60,40 @@ const Footer: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row justify-between pt-24 border-t border-white/10 mt-12">
-        <div className="flex flex-col gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-12 pt-24 border-t border-white/10 mt-12">
+        <div className="footer-bottom-reveal flex flex-col gap-6">
           <span className="text-xs font-bold tracking-widest text-white/40 uppercase">ADDRESS</span>
-          <p className="text-xs sm:text-sm text-white/70 max-w-[200px]">DUBAI DESIGN DISTRICT<br />
+          <p className="text-sm text-white/70 max-w-[200px]">
+            DUBAI DESIGN DISTRICT<br />
             BUILDING 6, OFFICE 102<br />
             DUBAI, UAE
           </p>
         </div>
         
-        <div className="flex flex-col gap-6">
+        <div className="footer-bottom-reveal flex flex-col gap-6">
           <span className="text-xs font-bold tracking-widest text-white/40 uppercase">SAY HELLO</span>
           <div className="flex flex-col gap-3">
             <RollingLink 
               href="mailto:hello@devzenith.agency" 
               label="HELLO@DEVZENITH.AGENCY" 
-              className="text-base md:text-xl font-bold"
+              className="text-xl font-bold"
             />
             <RollingLink 
               href="mailto:careers@devzenith.agency" 
               label="CAREERS@DEVZENITH.AGENCY" 
-              className="text-base md:text-xl font-bold"
+              className="text-xl font-bold"
             />
-            <a href="tel:+9710000000" className="text-sm md:text-base text-white/50 hover:text-white transition-colors duration-300">
-              +971 (0) 4 555 1234
-            </a>
           </div>
         </div>
 
-        <div className="flex flex-col gap-6">
+        <div className="footer-bottom-reveal flex flex-col gap-6">
           <span className="text-xs font-bold tracking-widest text-white/40 uppercase">SOCIAL</span>
           <div className="flex gap-6">
             {['INSTAGRAM', 'LINKEDIN', 'BEHANCE'].map((social) => (
               <a 
                 key={social} 
                 href="#" 
-                className="text-sm font-bold hover:opacity-50 transition-opacity duration-300"
+                className="text-sm font-bold hover:text-white/40 transition-colors duration-300"
               >
                 {social}
               </a>
@@ -82,18 +102,16 @@ const Footer: React.FC = () => {
         </div>
       </div>
 
-      <div className="mt-32 flex flex-col md:flex-row justify-between items-center gap-6 border-t border-white/5 pt-12">
+      <div className="mt-32 flex flex-col md:flex-row justify-between items-center gap-6 border-t border-white/5 pt-12 opacity-50">
         <span className="text-[10px] font-bold tracking-widest text-white/20 uppercase">
           © 2026 DEVZENITH. ALL RIGHTS RESERVED.
         </span>
         <span className="text-[10px] font-bold tracking-widest text-white/20 uppercase">
-          DEVELOPED BY DEVZENITH TEAM
+          DEVELOPED BY AWARDS TEAM
         </span>
       </div>
     </footer>
   );
 };
 
-export default Footer; 
-
-// footer
+export default Footer;
