@@ -133,7 +133,7 @@ const Loader: React.FC<LoaderProps> = ({ onComplete }) => {
       />
 
       <div className="absolute bottom-12 right-12 flex flex-col gap-2">
-        <span className="text-[8px] md:text-[10px] font-bold tracking-[0.5em] text-white/20 uppercase">SYSTEM INITIALIZING</span>
+        <span className="text-[10px] font-bold tracking-[0.5em] text-white/20 uppercase">SYSTEM INITIALIZING</span>
         <div className="w-32 h-[1px] bg-white/5 relative">
           <div className="absolute top-0 left-0 h-full bg-white/20 transition-all duration-300" style={{ width: `${count}%` }} />
         </div>
