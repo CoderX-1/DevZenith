@@ -149,7 +149,7 @@ const SelectedWork: React.FC = () => {
   }, []);
 
   return (
-    <section id="work" className="px-6 md:px-12 py-32 border-t border-white/10  ">
+    <section id="work" className="px-6 md:px-12 py-32 border-t border-white/10 bg-[#050505]">
       <div ref={headerRef} className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 md:mb-48 gap-8">
         <div>
           <div className="overflow-hidden mb-4">

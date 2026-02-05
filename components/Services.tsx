@@ -118,7 +118,6 @@ const Services: React.FC = () => {
           </h2>
         </div>
       </div>
-
       {/* Pinning Trigger & Horizontal Container */}
       <div ref={triggerRef} className="h-[750px] flex items-center">
         <div ref={horizontalRef} className="flex gap-8 md:gap-16 px-6 md:px-32 relative will-change-transform">
