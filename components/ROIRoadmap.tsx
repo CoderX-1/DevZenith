@@ -86,12 +86,12 @@ const ROIRoadmap: React.FC = () => {
   return (
     <section ref={sectionRef} className="py-48 md:py-80 px-6 md:px-12 bg-[#050505] relative overflow-hidden">
       {/* Section Header */}
-      <div className="mb-48 md:mb-64 max-w-[1400px] mx-auto text-center md:text-left">
-        <div className="flex items-center gap-4 mb-10 justify-center md:justify-start">
+      <div className="mb-4 md:mb-64 max-w-[1400px] mx-auto text-left">
+        <div className="flex items-center gap-4 mb-8">
           <span className="h-px w-12 bg-[#FFD700]" />
-          <span className="text-[10px] font-black tracking-[0.5em] text-[#FFD700] uppercase">GROWTH ARCHITECTURE</span>
+          <span className="text-[12px] md:text-[14px] font-black tracking-[0.5em] text-[#FFD700] uppercase">GROWTH ARCHITECTURE</span>
         </div>
-        <h3 className="text-6xl md:text-[10vw] font-black uppercase tracking-tighter leading-[0.8] mb-4">
+        <h3 className="text-[13vw] md:text-[8vw] font-black uppercase tracking-tighter leading-none mb-4">
           FROM GHOST TOWN<br />
           <span className="text-white/10 italic">TO GOLDMINE.</span>
         </h3>
@@ -131,7 +131,7 @@ const ROIRoadmap: React.FC = () => {
                 {/* The Phase Card - The primary visual unit */}
                 <div className="phase-card relative z-10 w-full max-w-lg p-10 md:p-14 bg-[#0a0a0a] border border-white/5 transition-all duration-1000 group hover:bg-[#0d0d0d]">
                   <div className="flex items-center gap-6 mb-8">
-                    <span className="text-xl font-black text-[#FFD700] bg-[#FFD700]/10 px-4 py-1 rounded-sm tracking-widest uppercase">
+                    <span className="text-lg md:text-xl font-black text-[#FFD700] bg-[#FFD700]/10 px-4 py-1 rounded-sm tracking-widest uppercase">
                       PHASE {phase.phase}
                     </span>
                     <div className="h-px flex-1 bg-white/5" />
