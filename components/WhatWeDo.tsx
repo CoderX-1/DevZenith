@@ -7,6 +7,8 @@ const MetricCounter: React.FC<{ value: string; label: string }> = ({ value, labe
   const numberRef = useRef<HTMLSpanElement>(null);
   
   useLayoutEffect(() => {
+    if (!numberRef.current) return;
+    
     const numericPart = parseInt(value.replace(/[^0-9]/g, ''));
     const prefix = value.startsWith('+') ? '+' : '';
     const suffix = value.endsWith('%') ? '%' : '';
@@ -27,7 +29,7 @@ const MetricCounter: React.FC<{ value: string; label: string }> = ({ value, labe
           }
         }
       });
-    });
+    }, numberRef);
     return () => ctx.revert();
   }, [value]);
 
@@ -45,17 +47,20 @@ const WhatWeDo: React.FC = () => {
   const textRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.from(textRef.current?.querySelectorAll('.reveal span'), {
-        y: '100%',
-        duration: 1.5,
-        stagger: 0.1,
-        ease: 'expo.out',
-        scrollTrigger: {
-          trigger: textRef.current,
-          start: 'top 85%',
-        }
-      });
+    const ctx = gsap.context((self) => {
+      const lines = self.selector?.('.reveal-line');
+      if (lines?.length) {
+        gsap.from(lines, {
+          y: '100%',
+          duration: 1.2,
+          stagger: 0.15,
+          ease: 'power4.out',
+          scrollTrigger: {
+            trigger: textRef.current,
+            start: 'top 80%',
+          }
+        });
+      }
     }, textRef);
     return () => ctx.revert();
   }, []);
@@ -64,20 +69,26 @@ const WhatWeDo: React.FC = () => {
     <section id="agency" ref={textRef} className="reveal-section py-32 md:py-64 px-6 md:px-12 bg-transparent">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-24">
         <div>
-           <div className="overflow-hidden reveal mb-8">
-              <span className="text-xs font-bold tracking-[0.5em] text-white/30 uppercase block">CORE PHILOSOPHY</span>
+           <div className="overflow-hidden mb-8">
+              <span className="reveal-line text-xs font-bold tracking-[0.5em] text-white/30 uppercase block">CORE PHILOSOPHY</span>
            </div>
-           <div className="overflow-hidden reveal">
-              <h2 className="text-6xl md:text-[8vw] font-black uppercase tracking-tighter leading-[0.85] mb-12">
-                <span>WE BUILD</span><br />
-                <span className="text-white/10 italic">REVENUE ENGINES</span>
-              </h2>
+           <div className="space-y-4">
+              <div className="overflow-hidden">
+                <h2 className="reveal-line text-6xl md:text-[8vw] font-black uppercase tracking-tighter leading-[0.85]">
+                  WE BUILD
+                </h2>
+              </div>
+              <div className="overflow-hidden">
+                <h2 className="reveal-line text-6xl md:text-[8vw] font-black uppercase tracking-tighter leading-[0.85] text-white/10 italic">
+                  REVENUE ENGINES
+                </h2>
+              </div>
            </div>
         </div>
         <div className="flex flex-col justify-center">
-          <div className="overflow-hidden reveal">
-            <p className="text-2xl md:text-4xl text-white/70 leading-tight mb-20 max-w-2xl font-black uppercase tracking-tighter">
-              <span>OUR APPROACH COMBINES DEEP TECHNICAL SEO KNOWLEDGE WITH HIGH-END CREATIVE EXECUTION. WE DON'T JUST BUILD WEBSITES; WE BUILD SCALABLE PERFORMANCE SYSTEMS.</span>
+          <div className="overflow-hidden mb-20">
+            <p className="reveal-line text-2xl md:text-4xl text-white/70 leading-tight max-w-2xl font-black uppercase tracking-tighter">
+              OUR APPROACH COMBINES DEEP TECHNICAL SEO KNOWLEDGE WITH HIGH-END CREATIVE EXECUTION. WE DON'T JUST BUILD WEBSITES; WE BUILD SCALABLE PERFORMANCE SYSTEMS.
             </p>
           </div>
           

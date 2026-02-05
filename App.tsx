@@ -22,19 +22,34 @@ const App: React.FC = () => {
   const transitionRef = useRef<HTMLDivElement>(null);
   const watermarkRef = useRef<HTMLDivElement>(null);
 
+  // Performance Optimization: Reactive mobile detection
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   useLayoutEffect(() => {
+    if (!watermarkRef.current) return;
+    
     const ctx = gsap.context(() => {
+      // Background Watermark Parallax
       gsap.to(watermarkRef.current, {
         yPercent: -15,
         ease: 'none',
         scrollTrigger: {
-          trigger: 'body',
+          trigger: document.body,
           start: 'top top',
           end: 'bottom bottom',
           scrub: 1
         }
       });
-    });
+    }, watermarkRef);
     return () => ctx.revert();
   }, []);
 
@@ -50,7 +65,7 @@ const App: React.FC = () => {
     setIsLoading(false);
   }, []);
 
-  const navigate = (path: string) => {
+  const navigate = useCallback((path: string) => {
     if (path === currentPath || isTransitioning) return;
 
     setIsTransitioning(true);
@@ -78,7 +93,7 @@ const App: React.FC = () => {
         duration: 1.2,
         ease: 'expo.inOut'
       });
-  };
+  }, [currentPath, isTransitioning]);
 
   const renderPage = () => {
     switch (currentPath) {
@@ -94,16 +109,24 @@ const App: React.FC = () => {
       <div className="bg-[#050505] text-white selection:bg-[#FFD700] selection:text-black min-h-screen relative">
         <Loader onComplete={handleLoaderComplete} />
 
-        {/* 3D Background Layer */}
-        <div className="fixed inset-0 z-0">
-          <Canvas dpr={[1, 2]} gl={{ antialias: true, alpha: true }}>
+        {/* 3D Background Layer Optimized */}
+        <div className="fixed inset-0 z-0 pointer-events-none">
+          <Canvas 
+            dpr={isMobile ? 1 : [1, 2]} 
+            gl={{ 
+              antialias: !isMobile, 
+              alpha: true,
+              powerPreference: "high-performance"
+            }}
+            camera={{ fov: 45, position: [0, 0, 8] }}
+          >
             <Suspense fallback={null}>
-              <Experience />
+              <Experience isMobile={isMobile} />
             </Suspense>
           </Canvas>
         </div>
 
-        {/* Background Watermark (Kept subtle behind content) */}
+        {/* Background Watermark */}
         <div ref={watermarkRef} className="fixed inset-0 pointer-events-none flex items-center justify-center opacity-[0.01] z-0 overflow-hidden select-none">
           <span className="text-[35vw] font-black uppercase tracking-tighter leading-none whitespace-nowrap italic">ZENITH</span>
         </div>
