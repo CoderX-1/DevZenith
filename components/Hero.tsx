@@ -10,9 +10,10 @@ const Hero: React.FC = () => {
     const ctx = gsap.context(() => {
       gsap.fromTo(
         textLines.current,
-        { y: '100%' },
+        { y: '100%', opacity: 0 },
         { 
           y: '0%', 
+          opacity: 1,
           duration: 1.5, 
           stagger: 0.2, 
           ease: 'power4.out',
@@ -31,32 +32,38 @@ const Hero: React.FC = () => {
   };
 
   return (
-    <section ref={containerRef} className="min-h-screen flex flex-col md:justify-center px-6 md:px-12 pt-32">
+    <section ref={containerRef} className="min-h-screen flex flex-col md:justify-center px-6 md:px-12 pt-32 relative z-10 pointer-events-none">
       <div className="max-w-[1400px]">
         <div className="overflow-hidden mb-[-1.5vw]">
-          <h1 ref={addToRefs} className="text-[14vw] md:text-[10vw] font-black leading-[0.9] tracking-tighter uppercase">
+          <h1 ref={addToRefs} className="text-[14vw] md:text-[10vw] font-black leading-[0.9] tracking-tighter uppercase drop-shadow-2xl">
             TECHNICAL
           </h1>
         </div>
         <div className="overflow-hidden mb-[-1.5vw]">
-          <h1 ref={addToRefs} className="text-[14vw] md:text-[10vw] font-black leading-[0.9] tracking-tighter uppercase">
+          <h1 ref={addToRefs} className="text-[14vw] md:text-[10vw] font-black leading-[0.9] tracking-tighter uppercase drop-shadow-2xl">
             MASTERY
           </h1>
         </div>
         <div className="overflow-hidden">
-          <h1 ref={addToRefs} className="text-[14vw] md:text-[10vw] font-black leading-[0.9] tracking-tighter uppercase text-white/20">
+          <h1 ref={addToRefs} className="text-[14vw] md:text-[10vw] font-black leading-[0.9] tracking-tighter uppercase text-white/5 italic">
             FOR BRANDS
           </h1>
         </div>
       </div>
       
-      <div className="mt-12 flex flex-col md:flex-row md:items-end justify-between border-t border-white/10 pt-8 gap-8">
-        <p className="max-w-md text-sm md:text-base text-white/60 leading-relaxed font-medium">
+      <div className="mt-12 flex flex-col md:flex-row md:items-end justify-between border-t border-white/10 pt-8 gap-8 pointer-events-auto">
+        <p className="max-w-md text-sm md:text-base text-white/60 leading-relaxed font-medium uppercase tracking-tight">
           WE PARTNER WITH DISRUPTIVE BRANDS TO ENGINEER HIGH-CONVERSION DIGITAL EXPERIENCES THROUGH METICULOUS DESIGN AND TECHNICAL EXCELLENCE.
         </p>
-        <div className="flex gap-4">
-          <span className="text-[12px] md:text-[14px] font-bold tracking-widest text-white/40 uppercase">DUBAI / KARACHI</span>
-          <span className="text-[12px] md:text-[14px] font-bold tracking-widest text-white/40 uppercase">EST. 2026 </span>
+        <div className="flex gap-10">
+          <div className="flex flex-col">
+            <span className="text-[10px] font-black text-[#FFD700] tracking-widest uppercase mb-1">LOCATION</span>
+            <span className="text-xs font-bold tracking-widest text-white/60 uppercase">DUBAI / DXB</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] font-black text-[#FFD700] tracking-widest uppercase mb-1">FOUNDED</span>
+            <span className="text-xs font-bold tracking-widest text-white/60 uppercase">EST. 2026</span>
+          </div>
         </div>
       </div>
     </section>
