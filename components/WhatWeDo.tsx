@@ -1,4 +1,3 @@
-
 import React, { useLayoutEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { METRICS } from '../constants';
@@ -8,7 +7,6 @@ const MetricCounter: React.FC<{ value: string; label: string }> = ({ value, labe
   
   useLayoutEffect(() => {
     if (!numberRef.current) return;
-    
     const numericPart = parseInt(value.replace(/[^0-9]/g, ''));
     const prefix = value.startsWith('+') ? '+' : '';
     const suffix = value.endsWith('%') ? '%' : '';
@@ -16,17 +14,10 @@ const MetricCounter: React.FC<{ value: string; label: string }> = ({ value, labe
     const ctx = gsap.context(() => {
       const obj = { count: 0 };
       gsap.to(obj, {
-        count: numericPart,
-        duration: 3,
-        ease: 'expo.out',
-        scrollTrigger: {
-          trigger: numberRef.current,
-          start: 'top 95%',
-        },
+        count: numericPart, duration: 2.5, ease: 'power3.out',
+        scrollTrigger: { trigger: numberRef.current, start: 'top 85%' },
         onUpdate: () => {
-          if (numberRef.current) {
-            numberRef.current.innerText = `${prefix}${Math.floor(obj.count)}${suffix}`;
-          }
+          if (numberRef.current) numberRef.current.innerText = `${prefix}${Math.floor(obj.count)}${suffix}`;
         }
       });
     }, numberRef);
@@ -34,9 +25,9 @@ const MetricCounter: React.FC<{ value: string; label: string }> = ({ value, labe
   }, [value]);
 
   return (
-    <div className="flex flex-col border-t border-white/10 pt-8">
-      <span ref={numberRef} className="text-5xl md:text-8xl font-black mb-4">0</span>
-      <span className="text-[10px] md:text-sm font-bold tracking-[0.5em] text-white/40 uppercase">
+    <div className="reveal-text flex flex-col border-t border-white/10 pt-6">
+      <span ref={numberRef} className="text-5xl md:text-7xl font-black mb-2 text-[#FFD700]">0</span>
+      <span className="text-[10px] md:text-xs font-bold tracking-[0.4em] text-white/40 uppercase">
         {label}
       </span>
     </div>
@@ -44,55 +35,29 @@ const MetricCounter: React.FC<{ value: string; label: string }> = ({ value, labe
 };
 
 const WhatWeDo: React.FC = () => {
-  const textRef = useRef<HTMLDivElement>(null);
-
-  useLayoutEffect(() => {
-    const ctx = gsap.context((self) => {
-      const lines = self.selector?.('.reveal-line');
-      if (lines?.length) {
-        gsap.from(lines, {
-          y: '100%',
-          duration: 1.2,
-          stagger: 0.15,
-          ease: 'power4.out',
-          scrollTrigger: {
-            trigger: textRef.current,
-            start: 'top 80%',
-          }
-        });
-      }
-    }, textRef);
-    return () => ctx.revert();
-  }, []);
-
   return (
-    <section id="agency" ref={textRef} className="reveal-section py-32 md:py-64 px-6 md:px-12 bg-transparent">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-24">
+    <section id="agency" className="py-24 md:py-48 px-6 md:px-12 bg-transparent z-10 relative">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 md:gap-24 max-w-[1600px] mx-auto">
         <div>
-           <div className="overflow-hidden mb-8">
-              <span className="reveal-line text-xs font-bold tracking-[0.5em] text-white/30 uppercase block">CORE PHILOSOPHY</span>
+           <div className="mb-6">
+              <span className="reveal-text text-[10px] md:text-xs font-bold tracking-[0.5em] text-[#FFD700] uppercase block">CORE PHILOSOPHY</span>
            </div>
-           <div className="space-y-4">
-              <div className="overflow-hidden">
-                <h2 className="reveal-line text-6xl md:text-[8vw] font-black uppercase tracking-tighter leading-[0.85]">
-                  WE BUILD
-                </h2>
-              </div>
-              <div className="overflow-hidden">
-                <h2 className="reveal-line text-6xl md:text-[8vw] font-black uppercase tracking-tighter leading-[0.85] text-white/10 italic">
-                  REVENUE ENGINES
-                </h2>
-              </div>
+           <div className="space-y-2">
+              <h2 className="reveal-text text-[13vw] md:text-[8vw] font-black uppercase tracking-tighter leading-[0.85]">
+                WE BUILD
+              </h2>
+              <h2 className="reveal-text text-[13vw] md:text-[8vw] font-black uppercase tracking-tighter leading-[0.85] text-white/10 italic">
+                REVENUE ENGINES
+              </h2>
            </div>
         </div>
         <div className="flex flex-col justify-center">
-          <div className="overflow-hidden mb-20">
-            <p className="reveal-line text-2xl md:text-4xl text-white/70 leading-tight max-w-2xl font-black uppercase tracking-tighter">
+          <div className="mb-16">
+            <p className="reveal-text text-lg md:text-3xl text-white/70 leading-tight max-w-2xl font-bold uppercase tracking-tight">
               OUR APPROACH COMBINES DEEP TECHNICAL SEO KNOWLEDGE WITH HIGH-END CREATIVE EXECUTION. WE DON'T JUST BUILD WEBSITES; WE BUILD SCALABLE PERFORMANCE SYSTEMS.
             </p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-12">
             {METRICS.map((metric, idx) => (
               <MetricCounter key={idx} value={metric.value} label={metric.label} />
             ))}

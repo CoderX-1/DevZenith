@@ -27,7 +27,7 @@ const LeadMagnet: React.FC = () => {
 
   return (
     <section ref={containerRef} className="bg-[#FFD700] py-24 md:py-48 px-6 md:px-12 text-black overflow-hidden relative">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-16 justify-between">
+      <div className=" mx-auto flex flex-col md:flex-row items-center gap-16 justify-between">
         <div className="flex-1">
           <h2 className="magnet-reveal text-6xl md:text-[8vw] font-black uppercase tracking-tighter leading-none mb-12">
             STOP GUESSING.<br />START GROWING.

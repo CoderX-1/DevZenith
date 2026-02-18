@@ -1,4 +1,3 @@
-
 import React, { useState, useLayoutEffect, useRef, useEffect, useCallback, Suspense } from 'react';
 import { ReactLenis } from '@studio-freight/react-lenis';
 import { Canvas } from '@react-three/fiber';
@@ -21,78 +20,80 @@ const App: React.FC = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const transitionRef = useRef<HTMLDivElement>(null);
   const watermarkRef = useRef<HTMLDivElement>(null);
-
-  // Performance Optimization: Reactive mobile detection
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
     window.addEventListener('resize', handleResize);
+    
+    // Performance Optimization for Mobile Scroll
+    gsap.config({ nullTargetWarn: false });
+    ScrollTrigger.config({ ignoreMobileResize: true });
+
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   useLayoutEffect(() => {
-    if (!watermarkRef.current) return;
+    if (isLoading) return;
     
     const ctx = gsap.context(() => {
-      // Background Watermark Parallax
-      gsap.to(watermarkRef.current, {
-        yPercent: -15,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: document.body,
-          start: 'top top',
-          end: 'bottom bottom',
-          scrub: 1
-        }
+      // 1. Watermark Parallax
+      if (watermarkRef.current) {
+        gsap.to(watermarkRef.current, {
+          yPercent: -20,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: document.body,
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: 1
+          }
+        });
+      }
+
+      // 2. Global Text Reveal (Add 'reveal-text' class to any text)
+      gsap.utils.toArray('.reveal-text').forEach((el: any) => {
+        gsap.fromTo(el, 
+          { y: 50, opacity: 0, clipPath: "polygon(0 0, 100% 0, 100% 0, 0 0)" },
+          {
+            y: 0, opacity: 1, clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)",
+            duration: 1.2, ease: "power3.out",
+            scrollTrigger: {
+              trigger: el,
+              start: "top 90%",
+              toggleActions: "play reverse play reverse",
+            }
+          }
+        );
       });
-    }, watermarkRef);
+    });
+
     return () => ctx.revert();
-  }, []);
+  }, [isLoading, currentPath]); // Re-run on page change
 
-  useEffect(() => {
-    if (isLoading) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-  }, [isLoading]);
-
-  const handleLoaderComplete = useCallback(() => {
-    setIsLoading(false);
-  }, []);
+  const handleLoaderComplete = useCallback(() => setIsLoading(false), []);
 
   const navigate = useCallback((path: string) => {
     if (path === currentPath || isTransitioning) return;
-
     setIsTransitioning(true);
     const tl = gsap.timeline({
       onComplete: () => {
         setCurrentPath(path);
         window.scrollTo(0, 0);
-        
         gsap.to(transitionRef.current, {
-          scaleY: 0,
-          transformOrigin: 'top center',
-          duration: 1.2,
-          ease: 'expo.inOut',
+          scaleY: 0, transformOrigin: 'top center', duration: 1, ease: 'expo.inOut',
           onComplete: () => {
             setIsTransitioning(false);
             gsap.set(transitionRef.current, { display: 'none' });
+            ScrollTrigger.refresh();
           }
         });
       }
     });
 
     tl.set(transitionRef.current, { display: 'block', scaleY: 0, transformOrigin: 'bottom center' })
-      .to(transitionRef.current, {
-        scaleY: 1,
-        duration: 1.2,
-        ease: 'expo.inOut'
-      });
+      .to(transitionRef.current, { scaleY: 1, duration: 1, ease: 'expo.inOut' });
   }, [currentPath, isTransitioning]);
 
   const renderPage = () => {
@@ -105,38 +106,26 @@ const App: React.FC = () => {
   };
 
   return (
-    <ReactLenis root options={{ lerp: 0.08, duration: 1.2 }}>
-      <div className="bg-[#050505] text-white selection:bg-[#FFD700] selection:text-black min-h-screen relative">
-        <Loader onComplete={handleLoaderComplete} />
+    <ReactLenis root options={{ lerp: 0.05, duration: 1.5, smoothWheel: true }}>
+      <div className="bg-[#050505] text-white selection:bg-[#FFD700] selection:text-black min-h-screen relative overflow-x-hidden">
+        {isLoading && <Loader onComplete={handleLoaderComplete} />}
 
-        {/* 3D Background Layer Optimized */}
-        <div className="fixed inset-0 z-0 pointer-events-none">
-          <Canvas 
-            dpr={isMobile ? 1 : [1, 2]} 
-            gl={{ 
-              antialias: !isMobile, 
-              alpha: true,
-              powerPreference: "high-performance"
-            }}
-            camera={{ fov: 45, position: [0, 0, 8] }}
-          >
+        {/* 3D Canvas */}
+        <div className="fixed inset-0 z-0 pointer-events-none opacity-60">
+          <Canvas dpr={isMobile ? 1 : [1, 1.5]} gl={{ antialias: false, powerPreference: "high-performance", alpha: true }}>
             <Suspense fallback={null}>
               <Experience isMobile={isMobile} />
             </Suspense>
           </Canvas>
         </div>
 
-        {/* Background Watermark */}
-        <div ref={watermarkRef} className="fixed inset-0 pointer-events-none flex items-center justify-center opacity-[0.01] z-0 overflow-hidden select-none">
-          <span className="text-[35vw] font-black uppercase tracking-tighter leading-none whitespace-nowrap italic">ZENITH</span>
+        {/* Watermark */}
+        <div ref={watermarkRef} className="fixed inset-0 pointer-events-none flex items-center justify-center opacity-[0.02] z-0 select-none">
+          <span className="text-[35vw] font-black uppercase tracking-tighter italic whitespace-nowrap">ZENITH</span>
         </div>
 
         <Navbar onNavigate={navigate} currentPath={currentPath} />
-        
-        <div 
-          ref={transitionRef} 
-          className="fixed inset-0 bg-[#FFD700] z-[100] hidden shadow-[0_0_100px_rgba(255,215,0,0.2)]"
-        />
+        <div ref={transitionRef} className="fixed inset-0 bg-[#FFD700] z-[100] hidden" />
 
         <main className={`relative z-10 transition-opacity duration-700 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
           {renderPage()}
